@@ -144,13 +144,38 @@ function compose(category, merchant, trigger, customer = null) {
       break;
     }
     case 'perf_dip': {
-      const metric = p.metric || 'performance';
-      const delta = signedPct(p.delta_pct);
-      const base = p.vs_baseline != null ? ` vs baseline ${p.vs_baseline}` : '';
-      body = `${name}, quick performance check: ${metric} are ${delta} over the last ${p.window || '7d'}${base}. ${merchant.performance?.[metric] != null ? `Your current ${metric}: ${merchant.performance[metric]}.` : ''} I’d fix the largest friction point before adding spend. Want me to identify the most relevant profile/offer action from your current data?`;
-      rationale = `Addresses the exact declining metric and supplied comparison window without inventing a cause.`;
-      break;
-    }
+  const metric = p.metric || 'performance';
+
+  const rawDelta =
+    p.delta_pct ??
+    p.drop_pct ??
+    (
+      p.current_value != null && p.previous_value != null
+        ? (p.previous_value - p.current_value) / p.previous_value
+        : null
+    );
+
+  const delta = rawDelta == null
+    ? ''
+    : `${Math.round(Math.abs(rawDelta) <= 1 ? rawDelta * 100 : rawDelta)}%`;
+
+  const window = p.window
+    ? String(p.window)
+        .replace(/^last_/, '')
+        .replace(/_/g, ' ')
+    : 'recently';
+
+  const base =
+    p.previous_value != null
+      ? ` (from ${p.previous_value} to ${p.current_value})`
+      : '';
+
+  body = `${name}, quick performance check: ${metric} is down ${delta} over the last ${window}${base}. I’d fix the largest friction point before adding spend. Want me to identify the most relevant profile/offer action from your current data?`;
+
+  rationale =
+    'Addresses the exact declining metric and supplied comparison window without inventing a cause.';
+  break;
+}
     case 'renewal_due': {
       body = `${name}, your ${p.plan || merchant.subscription?.plan || 'subscription'} renews in ${p.days_remaining ?? merchant.subscription?.days_remaining ?? 'a few'} days${p.renewal_amount ? ` at ₹${Number(p.renewal_amount).toLocaleString('en-IN')}` : ''}. If you want to continue, I can help you review what changed before renewal.`;
       cta = 'open_ended';
