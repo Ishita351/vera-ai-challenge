@@ -285,9 +285,29 @@ function conversationId(merchantId, triggerId, customerId) {
 }
 
 function isAutoReply(msg) {
-  const s = String(msg || '').toLowerCase();
-  const markers = ['thank you for contacting', 'thanks for contacting', 'will get back to you', 'currently unavailable', 'our working hours', 'auto-reply', 'automatic reply', 'thank you for your message'];
-  return markers.some(m => s.includes(m)) && s.length > 25;
+  const s = String(msg || '').trim().toLowerCase();
+
+  if (!s || s.length < 10) return false;
+
+  const markers = [
+    'thank you for contacting',
+    'thanks for contacting',
+    'will get back to you',
+    'currently unavailable',
+    'automated reply',
+    'automatic reply',
+    'auto reply',
+    'do not reply',
+    "don't reply",
+    'do not respond',
+    "don't respond",
+    'no reply',
+    'please do not reply',
+    'please do not respond',
+    'this is an automated message'
+  ];
+
+  return markers.some(m => s.includes(m));
 }
 function classifyReply(msg) {
   const s = String(msg || '').trim().toLowerCase();
@@ -423,6 +443,7 @@ app.post('/v1/reply', (req, res) => {
   const b = req.body || {};
   if (!b.conversation_id || typeof b.message !== 'string') return res.status(400).json({ action: 'end', rationale: 'Invalid reply payload.' });
   const state = conversations.get(b.conversation_id) || { history: [], autoReplies: 0 };
+  conversations.set(b.conversation_id, state);
   state.history = state.history || [];
   state.history.push({ from: b.from_role, body: b.message, ts: b.received_at || nowIso() });
   const out = replyFor(state, b);
