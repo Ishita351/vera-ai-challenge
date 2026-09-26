@@ -27,6 +27,9 @@ Context + Trigger Analysis
 Deterministic Decision Engine
       ↓
 Message + CTA + Action
+```
+
+## API
 
 | Method | Endpoint | Purpose |
 |---|---|---|
@@ -37,8 +40,8 @@ Message + CTA + Action
 | POST | `/v1/reply` | Process replies |
 | POST | `/v1/teardown` | Clear runtime state |
 
+## Tech Stack
 
-Tech Stack
 - Node.js
 - Express.js
 - JavaScript
@@ -46,20 +49,32 @@ Tech Stack
 - Git & GitHub
 - Render
 
+## Run Locally
 
-Run Locally
+```bash
 npm install
 npm start
+```
 
 Server:
+
+```text
 http://localhost:8080
+```
 
 Health check:
-http://localhost:8080/v1/healthz
 
-Deployment
+```text
+http://localhost:8080/v1/healthz
+```
+
+## Deployment
+
 Production API:
+
 https://vera-ai-challenge-rjii.onrender.com
-Author
-Ishita Soni
+
+## Author
+
+**Ishita Soni**  
 B.Tech Information Technology — NSUT, Delhi
