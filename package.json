@@ -1,0 +1,12 @@
+{
+  "name": "vera-bot",
+  "version": "1.0.0",
+  "description": "magicpin Vera AI Challenge bot",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
