@@ -335,9 +335,22 @@ app.post('/v1/context', (req, res) => {
   }
   if (!contexts[scope]) return res.status(400).json({ accepted: false, reason: 'invalid_scope', details: scope });
   const existing = contexts[scope].get(context_id);
-  if (existing && version <= existing.version) {
-    return res.status(409).json({ accepted: false, reason: 'stale_version', current_version: existing.version });
-  }
+  if (existing && version < existing.version) {
+  return res.status(409).json({
+    accepted: false,
+    reason: 'stale_version',
+    current_version: existing.version
+  });
+}
+
+if (existing && version === existing.version) {
+  return res.status(200).json({
+    accepted: true,
+    ack_id: `ack_${context_id}_v${version}`,
+    stored_at: new Date().toISOString(),
+    no_op: true
+  });
+}
   contexts[scope].set(context_id, { version, payload, delivered_at });
   return res.status(200).json({ accepted: true, ack_id: `ack_${context_id}_v${version}`, stored_at: nowIso() });
 });
